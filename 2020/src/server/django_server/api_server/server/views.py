@@ -12,9 +12,9 @@ User = get_user_model()
 
 class RegisterView(generics.GenericAPIView):
     global logger
-    serializer_class = UserSerializer
+    serializer_class = UserProfileSerializer
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = UserProfileSerializer(data=request.data)
         logger.info("serializer: {}".format(serializer))
         logger.info("serializer.is_valid(): {}".format(serializer.is_valid()))
         if serializer.is_valid():

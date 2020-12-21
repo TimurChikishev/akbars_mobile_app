@@ -15,7 +15,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ('user','passport')
         read_only_fields = ('user',)
 
-class UserSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
   
     class Meta:
