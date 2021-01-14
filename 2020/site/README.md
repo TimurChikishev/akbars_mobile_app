@@ -1,5 +1,5 @@
 # Сайт
 
-http://pd-2020-1.std-826.ist.mospolytech.ru/
+http://pd-2020-2.std-881.ist.mospolytech.ru/
 
 В этой папке расположены файлы сайта проекта.
