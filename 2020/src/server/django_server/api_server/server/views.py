@@ -10,6 +10,10 @@ import logging
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
+def get_current_user(request):
+    current_user = request.user
+    return current_user
+
 class RegisterView(generics.GenericAPIView):
     global logger
     serializer_class = UserProfileSerializer
@@ -19,7 +23,7 @@ class RegisterView(generics.GenericAPIView):
         logger.info("serializer.is_valid(): {}".format(serializer.is_valid()))
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'OK'}, status=status.HTTP_201_CREATED)
+            return Response({'_message': 'OK'}, status=status.HTTP_201_CREATED)
   
         custom_error_messages = []
         
@@ -32,13 +36,24 @@ class RegisterView(generics.GenericAPIView):
     
         return Response(custom_error_messages, status=status.HTTP_400_BAD_REQUEST)
 
+class MessageView(generics.GenericAPIView):
+    global logger
+    serializer_class = ChatSerializer
+    def post(self, request):
+        serializer = ChatSerializer(data=request.data, context={'request':request})
+        logger.info("serializer: {}".format(serializer))
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'_message': 'OK'}, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class UserCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAdminUser]
     serializer_class = UserDetailSerializer
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAdminUser]
-    logger.debug('Enter To UserDetailView')
     serializer_class = UserDetailSerializer
     queryset = User.objects.all()
 
@@ -47,7 +62,9 @@ class UserListView(generics.ListAPIView):
     serializer_class = UserListSerializer
     queryset = User.objects.all()
     
-
+class CreateChatView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserDetailSerializer
 
 
 

@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 
-from .models import Profile
+from .models import Profile, Chat, Party, Messages
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -58,30 +58,71 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         return user
 
-    # def create(self, validated_data):
-    #     logger.info("validated_data", **validated_data)
-    #     profile_data = validated_data.pop('profile', None)
-
-    #     user = User.objects.create(**validated_data)
-
-    #     Profile.objects.create(user=user, passport = profile_data['passport'])
-    #     return user
-
-       
-        # profile = Profile.objects.create(
-        #     user=User,
-        #     passport = profile_data['passport']
-        # )
-        # logger.info('Profile.objects.create: {}'.format(profile))
-        # return user
-
 class UserDetailSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(required=True)
+    logger.info(serializers.CurrentUserDefault)
     class Meta:
         model = User
         fields = ("id","username","first_name","last_name","email", "profile")
+    
 
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id","username","email")
+
+
+class MessagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Messages
+        fields = ('contect',)
+
+# Отправляется сообщение
+# Если для пользователя был создан чат, то добавляем сообщение, иначе
+# создаем чат для пользователя и добавляем сообщение
+class ChatSerializer(serializers.ModelSerializer):
+    massege = MessagesSerializer()
+    class Meta:
+        model = Chat
+        fields = ("massege",)
+            
+    def create(self, request):
+        user_id = self.context['request'].user.id
+        
+        if not Chat.objects.filter(user_id=user_id).exists():
+            chat = Chat.objects.create(
+                user_id = user_id,
+            )
+        logger.info('request {}'.format(request))
+        massege_data = request.pop('massege')
+        logger.info('CONTECT MESSAGE: {}'.format(massege_data['contect']))
+        chat = Chat.objects.filter(user_id=user_id).first()
+        logger.info('CHAT {}'.format(chat))
+        logger.info('CHAT ID {}'.format(chat.chat_id))
+        
+        chat_id = chat.chat_id
+        message_id = self.get_masseg_id(chat_id)
+        logger.info('MESSAGE ID {}'.format(message_id))
+        message = Messages.objects.create(
+            message_id = message_id,
+            chat_id = chat_id,
+            user_id = user_id,
+            contect = massege_data['contect'],
+            # etc...
+        )
+
+        return chat
+
+    def get_masseg_id(self, chat_id):
+        if Messages.objects.filter(chat_id=chat_id).last(): 
+            last_massage = Messages.objects.filter(chat_id=chat_id).last()
+            next_id = last_massage.message_id + 1
+            return next_id
+        else:
+            return 1
+
+    def _user_id(self, obj):
+        request = self.context.get('request', None)
+        if request:
+            logger.info('User ID REQUEST: {}'.format(request.user.id))
+            return request.user.id

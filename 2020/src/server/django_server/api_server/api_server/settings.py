@@ -56,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
 
 ROOT_URLCONF = 'api_server.urls'
@@ -84,12 +85,12 @@ WSGI_APPLICATION = 'api_server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': '',
         'NAME': '',
         'USER': '',
         'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'HOST': '',
+        'PORT': '',
     }
 }
 
@@ -112,7 +113,7 @@ DJOSER = {
     'SERIALIZERS': {},
 }
 
-LOG_PATH = os.path.join(BASE_DIR, 'log')
+LOG_PATH = os.path.join(BASE_DIR, 'log_debug')
 LOG_INFO_PATH = os.path.join(BASE_DIR, 'log_info')
 LOGGING = {
     'version': 1,
