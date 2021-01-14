@@ -80,6 +80,12 @@ class MessagesSerializer(serializers.ModelSerializer):
 # Отправляется сообщение
 # Если для пользователя был создан чат, то добавляем сообщение, иначе
 # создаем чат для пользователя и добавляем сообщение
+# ***TO-DO***
+# Если из-за слабого интернета сообщение не дошло
+# Нужно резервировать его порядковый id, чтобы
+# сообщения имели правильный порядок отправки, 
+# чтобы избежать недопониманий между собеседниками
+# ***
 class ChatSerializer(serializers.ModelSerializer):
     massege = MessagesSerializer()
     class Meta:
@@ -93,16 +99,12 @@ class ChatSerializer(serializers.ModelSerializer):
             chat = Chat.objects.create(
                 user_id = user_id,
             )
-        logger.info('request {}'.format(request))
+   
         massege_data = request.pop('massege')
-        logger.info('CONTECT MESSAGE: {}'.format(massege_data['contect']))
         chat = Chat.objects.filter(user_id=user_id).first()
-        logger.info('CHAT {}'.format(chat))
-        logger.info('CHAT ID {}'.format(chat.chat_id))
-        
         chat_id = chat.chat_id
         message_id = self.get_masseg_id(chat_id)
-        logger.info('MESSAGE ID {}'.format(message_id))
+       
         message = Messages.objects.create(
             message_id = message_id,
             chat_id = chat_id,
