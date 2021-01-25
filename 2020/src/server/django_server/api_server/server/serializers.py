@@ -128,3 +128,9 @@ class ChatSerializer(serializers.ModelSerializer):
         if request:
             logger.info('User ID REQUEST: {}'.format(request.user.id))
             return request.user.id
+
+class MessageDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Messages
+        fields = "__all__"
+        lookup_field = "chat_id"

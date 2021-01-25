@@ -4,15 +4,11 @@ from server.serializers import *
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Profile
+from .models import Profile, Messages
 import logging
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
-
-def get_current_user(request):
-    current_user = request.user
-    return current_user
 
 class RegisterView(generics.GenericAPIView):
     global logger
@@ -47,6 +43,15 @@ class MessageView(generics.GenericAPIView):
             return Response({'_message': 'OK'}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class MessageListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MessageDetailSerializer
+    lookup_field = "chat_id"
+    queryset = Messages.objects.all()
+
+    def get_queryset(self):
+        return Messages.objects.filter(chat_id=self.kwargs['chat_id'])
 
 class UserCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAdminUser]

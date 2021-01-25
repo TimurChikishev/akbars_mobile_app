@@ -26,7 +26,7 @@ SECRET_KEY = 'us9z(suw2!p1&8f_c%pa6_x$^%+pm53)dk@d=wj@ruh3f6*wo_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # LOGIN_REDIRECT_URL = '/swagger/'
 
