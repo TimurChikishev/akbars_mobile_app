@@ -71,5 +71,34 @@ class CreateChatView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserDetailSerializer
 
+class VirtualAccountView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = VirtualAccountDetailSerializer
+    queryset = VirtualAccount.objects.all()
+
+class VirtualAccountListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = VirtualAccountDetailSerializer
+    queryset = VirtualAccount.objects.all()
+
+class CreateVirtualAccountView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CreateVirtualAccountSerializer
+
+    def post(self, request):
+        serializer = CreateVirtualAccountSerializer(data=request.data)
+        logger.info("serializer: {}".format(serializer))
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'_message': 'OK'}, status=status.HTTP_201_CREATED)
+  
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class RetrieveUpdateVirtualAccountView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = VirtualAccountDetailSerializer
+    queryset = VirtualAccount.objects.all()
+
+
 
 

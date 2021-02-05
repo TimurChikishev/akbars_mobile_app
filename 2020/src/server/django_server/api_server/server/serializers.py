@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 
-from .models import Profile, Chat, Party, Messages
+from .models import Profile, Chat, Party, Messages, VirtualAccount
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -29,15 +29,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
                         'write_only': True,
                     }
                 }
-
-    def validate_email(self, attrs):
-        logger.info(attrs)
-        data = self.get_initial()
-        email = data.get('email')
-        if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError('Email is already in use.')
-        return super().validate(attrs)
-
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -134,3 +125,49 @@ class MessageDetailSerializer(serializers.ModelSerializer):
         model = Messages
         fields = "__all__"
         lookup_field = "chat_id"
+
+class CreateVirtualAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VirtualAccount
+        fields = ("name", "primary_contact", "email_id", "mobile_number", 
+                    "created_at", "updated_at")
+
+        # to do
+        # дописать генирацию 
+        # virtual_account_number
+        # virtual_account_ifsc_code
+        # vpa
+        def create(self, validated_data):
+            try:
+                last_virtual_account = VirtualAccount.objects.latest("created_at")
+            except VirtualAccount.DoesNotExist:
+                last_virtual_account = None
+
+            logger.info("last_virtual_account:")
+            logger.info(last_virtual_account)
+
+            if (last_virtual_account == None): virtual_account_number = "100000000000000"
+            else: logger.info(virtual_account_number)  
+
+            va_ifsc_code = "ICIC#" # to do (генерация)
+            va_vpa = "open.#@icici" # to do (генерация)
+            data = validated_data.pop('virtualaccount')
+            
+            virtualaccount = VirtualAccount.objects.create(
+                virtual_account_number = last_virtual_account,
+                virtual_account_ifsc_code = va_ifsc_code,
+                vpa = va_vpa,
+                name = data['name'],
+                primary_contact = data['primary_contact'],
+                contact_type = data['contact_type'],
+                email_id = data['email_id'],
+                mobile_number = data['mobile_number'],
+            )
+            logger.info("virtualaccount:")
+            logger.info(virtualaccount)
+            return virtualaccount
+
+class VirtualAccountDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VirtualAccount
+        fields = "__all__"
